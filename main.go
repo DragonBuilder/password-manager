@@ -71,3 +71,27 @@ INSERT INTO credentials VALUES(NULL, ?, ?, ?, ?, ?)
 
 	return nil
 }
+
+func (s *Service) RetrieveCredential(website string) ([]Credential, error) {
+	const get_credential_qry = `
+SELECT username, password FROM credentials WHERE website=?
+`
+	rows, err := s.db.Query(get_credential_qry, website)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching credentials : %w", err)
+	}
+	var results = make([]Credential, 0)
+
+	for rows.Next() {
+		var cred = Credential{}
+		rows.Scan(&cred.Username, &cred.Password)
+		results = append(results, cred)
+	}
+
+	if len(results) == 0 {
+		return nil, fmt.Errorf("credentials not found")
+	}
+
+	return results, nil
+
+}
