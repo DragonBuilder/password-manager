@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -52,7 +54,8 @@ CREATE TABLE IF NOT EXISTS credentials (
 	username TEXT NOT NULL,
 	password TEXT NOT NULL,
 	created_at DATETIME NOT NULL,
-	updated_at DATETIME NOT NULL
+	updated_at DATETIME NOT NULL,
+	UNIQUE(website, username)
 );
 `
 
@@ -66,7 +69,10 @@ INSERT INTO credentials VALUES(NULL, ?, ?, ?, ?, ?)
 
 	now := time.Now()
 	if _, err := s.db.Exec(insert_credential_qry, cred.Website, cred.Username, cred.Password, now, now); err != nil {
-		return fmt.Errorf("error inserting credential to db : %w", err)
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return errors.New("CredentialsAlreadyExistsForWebsite")
+		}
+		return fmt.Errorf("error inserting credential to db: %w", err)
 	}
 
 	return nil

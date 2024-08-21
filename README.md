@@ -6,6 +6,6 @@
 
 ## User Stories
 
-[ ] As a user, I should be able to add credentials associated with specific website. (Eg:- google, x.com, github etc).
+1. As a user, I should be able to add credentials associated with specific website. (Eg:- google, x.com, github etc).
 2. As a user I should be able to access any added credentials for a website.
-3. As a user, I should be able to add as many credential as I want for a specific website, i.e., mutiple accounts on google can be added.
+3. As a user, I should be able to add as many credential as I want for a specific website but the username should be different, i.e., user has multiple google accounts.

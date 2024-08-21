@@ -83,3 +83,59 @@ func TestRetrieveCredentialShouldReturnCorrectCredentialWhenCredentialExistsForA
 	assert.Equal(t, cred.Username, got_creds[0].Username)
 	assert.Equal(t, cred.Password, got_creds[0].Password)
 }
+
+func TestAddMultipleCredentialsShouldAllowNewCredentialForSameWebsiteWhenUsernameIsDifferent(t *testing.T) {
+	cred := Credential{
+		Website:  "gmail",
+		Username: "deadpool@gmail.com",
+		Password: "maximum effort",
+	}
+
+	dbPath := dbPathForTest("test_add_credential")
+	db, _ := OpenSqliteConn(dbPath)
+
+	defer os.Remove(dbPath)
+	defer db.Close()
+
+	srv := Service{db}
+
+	err := srv.AddCredential(cred)
+	assert.NoError(t, err)
+
+	err = srv.AddCredential(Credential{
+		Website:  "gmail",
+		Username: "funpool@gmail.com",
+		Password: "minimum effort",
+	})
+	assert.NoError(t, err)
+
+	got_creds, err := srv.RetrieveCredential(cred.Website)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 2, len(got_creds))
+}
+func TestAddMultipleCredentialsShouldDisAllowNewCredentialForSameWebsiteWhenUsernameIsAlreadyExists(t *testing.T) {
+	cred := Credential{
+		Website:  "gmail",
+		Username: "deadpool@gmail.com",
+		Password: "maximum effort",
+	}
+
+	dbPath := dbPathForTest("test_add_credential")
+	db, _ := OpenSqliteConn(dbPath)
+
+	defer os.Remove(dbPath)
+	defer db.Close()
+
+	srv := Service{db}
+
+	err := srv.AddCredential(cred)
+	assert.NoError(t, err)
+
+	err = srv.AddCredential(Credential{
+		Website:  "gmail",
+		Username: "deadpool@gmail.com",
+		Password: "minimum effort",
+	})
+	assert.Error(t, err)
+}
