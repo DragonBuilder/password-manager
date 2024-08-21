@@ -7,8 +7,8 @@ import (
 	"path"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli/v2"
+	_ "modernc.org/sqlite"
 )
 
 type Credential struct {
@@ -33,7 +33,7 @@ func OpenSqliteConn(dbPath string) (*sql.DB, error) {
 	if dir != "" {
 		os.MkdirAll(dir, os.ModePerm)
 	}
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("error opening connection to sqlite3 : %w", err)
 	}

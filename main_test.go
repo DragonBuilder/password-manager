@@ -6,9 +6,22 @@ import (
 	"path"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
+	_ "modernc.org/sqlite"
 )
+
+func dbPathForTest(dbName string) string {
+	dbName = fmt.Sprintf("%s_%d", dbName, rand.Int())
+	dbPath := path.Join("test_dbs", dbName)
+	return dbPath
+}
+
+func TestOpenSqliteConn(t *testing.T) {
+	db, err := OpenSqliteConn(dbPathForTest("conn_test"))
+	assert.NoError(t, err)
+	defer db.Close()
+	assert.NotNil(t, db)
+}
 
 func TestAddCredential(t *testing.T) {
 	cred := Credential{
@@ -17,11 +30,7 @@ func TestAddCredential(t *testing.T) {
 		Password: "maximum effort",
 	}
 
-	dbName := fmt.Sprintf("credential_testing_%d", rand.Int())
-
-	dbPath := path.Join("test_dbs", dbName)
-
-	db, _ := OpenSqliteConn(dbPath)
+	db, _ := OpenSqliteConn(dbPathForTest("test_add_credential"))
 	defer db.Close()
 	service := Service{db}
 
